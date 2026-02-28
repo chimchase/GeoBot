@@ -11,7 +11,7 @@ interface CategoryCardProps {
 
 export function CategoryCard({ category }: CategoryCardProps) {
   const pct = Math.round((category.score / category.max_score) * 100);
-  const glowClass = pct >= 80 ? "shadow-emerald-500/10 shadow-lg" : "";
+  const glowClass = pct >= 80 ? "ring-emerald-200 shadow-md" : "";
 
   return (
     <Card className={glowClass}>
@@ -25,10 +25,10 @@ export function CategoryCard({ category }: CategoryCardProps) {
           />
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-white">
+          <h3 className="text-lg font-semibold text-slate-900">
             {category.name}
           </h3>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-400">
             {category.description}
           </p>
         </div>

@@ -47,12 +47,12 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed left-0 top-0 z-40 flex h-screen w-16 flex-col items-center border-r border-slate-800 bg-slate-950 py-6 lg:w-56">
+    <aside className="fixed left-0 top-0 z-40 flex h-screen w-16 flex-col items-center border-r border-slate-200 bg-white py-6 lg:w-56">
       <Link href="/" className="mb-8 flex items-center gap-2 px-4">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500 text-sm font-bold text-slate-950">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600 text-sm font-bold text-white">
           G
         </div>
-        <span className="hidden text-lg font-bold text-white lg:block">GeoBot</span>
+        <span className="hidden text-lg font-bold text-slate-900 lg:block">GeoBot</span>
       </Link>
 
       <nav className="flex w-full flex-1 flex-col gap-1 px-2">
@@ -64,8 +64,8 @@ export function Sidebar() {
               href={item.href}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                 isActive
-                  ? "bg-slate-800 text-emerald-400"
-                  : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
+                  ? "bg-indigo-50 text-indigo-600 font-semibold"
+                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
               }`}
             >
               {item.icon}
@@ -74,6 +74,18 @@ export function Sidebar() {
           );
         })}
       </nav>
+
+      <div className="mt-auto w-full border-t border-slate-200 px-3 pt-4">
+        <div className="flex items-center gap-3 rounded-lg px-2 py-2">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-semibold text-indigo-600">
+            U
+          </div>
+          <div className="hidden lg:block">
+            <p className="text-sm font-medium text-slate-700">User</p>
+            <p className="text-xs text-slate-400">user@geobot.ai</p>
+          </div>
+        </div>
+      </div>
     </aside>
   );
 }

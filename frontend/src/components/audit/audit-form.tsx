@@ -24,13 +24,13 @@ export function AuditForm({ onSubmit, loading }: AuditFormProps) {
         value={url}
         onChange={(e) => setUrl(e.target.value)}
         placeholder="Enter website URL (e.g. example.com)"
-        className="flex-1 rounded-lg border border-slate-700 bg-slate-800/50 px-4 py-3 text-base text-white placeholder-slate-500 outline-none transition-colors focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
+        className="flex-1 rounded-xl border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 placeholder-slate-400 outline-none transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
         disabled={loading}
       />
       <button
         type="submit"
         disabled={loading || !url.trim()}
-        className="rounded-lg bg-emerald-500 px-6 py-3 text-base font-semibold text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-50"
+        className="rounded-xl bg-indigo-600 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {loading ? "Auditing..." : "Audit"}
       </button>

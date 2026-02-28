@@ -66,7 +66,7 @@ export function SpiderWeb({ siteMap }: SpiderWebProps) {
       .selectAll("line")
       .data(simLinks)
       .join("line")
-      .attr("stroke", "#334155")
+      .attr("stroke", "#cbd5e1")
       .attr("stroke-width", 1.5)
       .attr("stroke-opacity", 0.6);
 
@@ -98,7 +98,7 @@ export function SpiderWeb({ siteMap }: SpiderWebProps) {
       .append("circle")
       .attr("r", (d) => (d.id === "home" ? 24 : 18))
       .attr("fill", (d) => scoreColor(d.score, d.max_score))
-      .attr("stroke", "#0f172a")
+      .attr("stroke", "#ffffff")
       .attr("stroke-width", 2)
       .attr("opacity", 0.9);
 
@@ -109,7 +109,7 @@ export function SpiderWeb({ siteMap }: SpiderWebProps) {
       .attr("dy", (d) => (d.id === "home" ? 36 : 30))
       .attr("font-size", "11px")
       .attr("font-weight", "500")
-      .attr("fill", "#94a3b8");
+      .attr("fill", "#64748b");
 
     node
       .append("text")
@@ -137,7 +137,7 @@ export function SpiderWeb({ siteMap }: SpiderWebProps) {
 
   return (
     <Card>
-      <h3 className="mb-4 text-lg font-semibold text-white">
+      <h3 className="mb-4 text-lg font-semibold text-slate-900">
         Visual Site Map
       </h3>
       <p className="mb-4 text-sm text-slate-500">
