@@ -29,8 +29,8 @@ export function CategoryTabs({ categories }: CategoryTabsProps) {
 
   return (
     <Card className="p-0">
-      {/* Tab bar */}
-      <div className="flex overflow-x-auto border-b border-slate-100">
+      {/* Tab grid */}
+      <div className="grid grid-cols-2 border-b border-slate-100 sm:grid-cols-3 lg:grid-cols-6">
         {categories.map((cat, i) => {
           const pct = Math.round((cat.score / cat.max_score) * 100);
           const isActive = i === activeTab;
@@ -38,24 +38,23 @@ export function CategoryTabs({ categories }: CategoryTabsProps) {
             <button
               key={cat.key}
               onClick={() => setActiveTab(i)}
-              className={`group relative flex shrink-0 items-center gap-2 px-5 py-4 text-sm font-medium transition-colors ${
+              className={`relative flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
                 isActive
-                  ? "text-indigo-600"
-                  : "text-slate-500 hover:text-slate-700"
+                  ? "bg-indigo-50/50 text-indigo-600"
+                  : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
               }`}
             >
               <span
-                className={`h-2 w-2 rounded-full ${scoreColor(pct)}`}
+                className={`h-2 w-2 shrink-0 rounded-full ${scoreColor(pct)}`}
               />
-              <span className="whitespace-nowrap">{cat.name}</span>
+              <span className="truncate">{cat.name}</span>
               <span
-                className={`text-xs ${
+                className={`shrink-0 text-xs ${
                   isActive ? "text-indigo-400" : "text-slate-400"
                 }`}
               >
                 {cat.score}/{cat.max_score}
               </span>
-              {/* Active indicator */}
               {isActive && (
                 <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600" />
               )}
