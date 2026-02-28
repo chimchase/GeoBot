@@ -1,0 +1,373 @@
+from datetime import datetime, timezone
+
+from app.schemas.audit import (
+    AuditMetadata,
+    AuditResponse,
+    CategoryScore,
+    CheckResult,
+    SiteMap,
+    SiteMapLink,
+    SiteMapNode,
+)
+
+
+def _grade(score: int) -> str:
+    if score >= 90:
+        return "A"
+    if score >= 80:
+        return "B"
+    if score >= 70:
+        return "C"
+    if score >= 60:
+        return "D"
+    return "F"
+
+
+def generate_mock_audit(url: str) -> AuditResponse:
+    categories = [
+        CategoryScore(
+            name="Content Structure",
+            key="content_structure",
+            score=14,
+            max_score=20,
+            description="How well your content is structured for AI extraction and citation.",
+            checks=[
+                CheckResult(
+                    id="cs_heading_hierarchy",
+                    name="Heading Hierarchy",
+                    category="content_structure",
+                    status="pass",
+                    score=4,
+                    max_score=4,
+                    description="Pages use a single H1 with logically nested H2-H4 subheadings.",
+                ),
+                CheckResult(
+                    id="cs_answer_density",
+                    name="Direct Answer Density",
+                    category="content_structure",
+                    status="warn",
+                    score=2,
+                    max_score=4,
+                    description="Content provides direct 1-2 sentence answers after question-style headings.",
+                    recommendation="Restructure 8 pages to lead each section with a concise answer before expanding with detail. AI models extract the first sentence after a heading as the candidate answer.",
+                ),
+                CheckResult(
+                    id="cs_list_formatting",
+                    name="List & Table Formatting",
+                    category="content_structure",
+                    status="pass",
+                    score=4,
+                    max_score=4,
+                    description="Content uses bullet points, numbered lists, and comparison tables where appropriate.",
+                ),
+                CheckResult(
+                    id="cs_paragraph_length",
+                    name="Paragraph Scannability",
+                    category="content_structure",
+                    status="pass",
+                    score=4,
+                    max_score=4,
+                    description="Paragraphs are kept to 2-3 sentences for optimal AI chunk extraction.",
+                ),
+                CheckResult(
+                    id="cs_faq_sections",
+                    name="FAQ Sections",
+                    category="content_structure",
+                    status="fail",
+                    score=0,
+                    max_score=4,
+                    description="Key pages include FAQ sections addressing common user questions.",
+                    recommendation="Add FAQ sections to your top 10 landing pages. Pages with FAQ content are 2.3x more likely to be cited in AI-generated answers.",
+                ),
+            ],
+        ),
+        CategoryScore(
+            name="Entity Coverage",
+            key="entity_coverage",
+            score=10,
+            max_score=20,
+            description="How well your brand entity is defined and consistent across the web.",
+            checks=[
+                CheckResult(
+                    id="ec_org_schema",
+                    name="Organization Schema",
+                    category="entity_coverage",
+                    status="pass",
+                    score=4,
+                    max_score=4,
+                    description="Homepage includes Organization structured data with name, logo, and contact info.",
+                ),
+                CheckResult(
+                    id="ec_author_authority",
+                    name="Author Authority Signals",
+                    category="entity_coverage",
+                    status="fail",
+                    score=0,
+                    max_score=4,
+                    description="Content pages include author bylines with credentials and linked author profiles.",
+                    recommendation="Add author bylines with professional credentials to all blog and guide content. Author expertise signals increase AI citation likelihood by up to 50%.",
+                ),
+                CheckResult(
+                    id="ec_brand_consistency",
+                    name="Brand Information Consistency",
+                    category="entity_coverage",
+                    status="warn",
+                    score=2,
+                    max_score=4,
+                    description="Company details are consistent across Crunchbase, LinkedIn, Google Business Profile, and your website.",
+                    recommendation="Found discrepancies in company description between LinkedIn and your About page. AI models cross-reference multiple sources -- inconsistencies weaken entity confidence.",
+                ),
+                CheckResult(
+                    id="ec_knowledge_base",
+                    name="Knowledge Base Presence",
+                    category="entity_coverage",
+                    status="fail",
+                    score=0,
+                    max_score=4,
+                    description="Brand has a presence on Wikipedia or Wikidata, which AI models use as authoritative entity sources.",
+                    recommendation="Consider contributing to Wikidata with verified company information. Wikipedia/Wikidata entries are primary entity sources for LLMs.",
+                ),
+                CheckResult(
+                    id="ec_exec_visibility",
+                    name="Executive Visibility",
+                    category="entity_coverage",
+                    status="pass",
+                    score=4,
+                    max_score=4,
+                    description="Key executives appear in industry publications, podcasts, or conferences linked to the brand.",
+                ),
+            ],
+        ),
+        CategoryScore(
+            name="Citation Likelihood",
+            key="citation_likelihood",
+            score=12,
+            max_score=20,
+            description="How likely AI models are to cite your content when generating answers.",
+            checks=[
+                CheckResult(
+                    id="cl_statistics",
+                    name="Statistics & Data Points",
+                    category="citation_likelihood",
+                    status="warn",
+                    score=2,
+                    max_score=4,
+                    description="Content includes specific, sourced statistics and data points that AI models can reference.",
+                    recommendation="Only 3 of 25 analyzed pages include cited statistics. Embedding sourced data points increases LLM citation probability significantly.",
+                ),
+                CheckResult(
+                    id="cl_expert_quotes",
+                    name="Expert Quotations",
+                    category="citation_likelihood",
+                    status="pass",
+                    score=4,
+                    max_score=4,
+                    description="Content features quotes from recognized industry experts or internal subject matter experts.",
+                ),
+                CheckResult(
+                    id="cl_source_attribution",
+                    name="Source Attribution",
+                    category="citation_likelihood",
+                    status="warn",
+                    score=2,
+                    max_score=4,
+                    description="Claims and data points are attributed to authoritative sources with links.",
+                    recommendation="12 pages contain unattributed claims. Add inline citations linking to primary sources. AI models prefer content that demonstrates verifiability.",
+                ),
+                CheckResult(
+                    id="cl_original_research",
+                    name="Original Research & Insights",
+                    category="citation_likelihood",
+                    status="pass",
+                    score=4,
+                    max_score=4,
+                    description="Site publishes original research, case studies, or unique datasets not found elsewhere.",
+                ),
+                CheckResult(
+                    id="cl_key_takeaways",
+                    name="Key Takeaways & Summaries",
+                    category="citation_likelihood",
+                    status="fail",
+                    score=0,
+                    max_score=4,
+                    description="Long-form content includes executive summaries or key takeaway sections.",
+                    recommendation="Add 'Key Takeaways' sections to all articles over 500 words. These summary blocks are high-value extraction targets for AI answer generation.",
+                ),
+            ],
+        ),
+        CategoryScore(
+            name="Technical AI Readiness",
+            key="technical_ai",
+            score=10,
+            max_score=15,
+            description="Technical factors that affect AI crawler access and content processing.",
+            checks=[
+                CheckResult(
+                    id="ta_ai_crawler_access",
+                    name="AI Crawler Access",
+                    category="technical_ai",
+                    status="pass",
+                    score=5,
+                    max_score=5,
+                    description="robots.txt allows GPTBot, ClaudeBot, and PerplexityBot to crawl the site.",
+                ),
+                CheckResult(
+                    id="ta_schema_markup",
+                    name="Schema Markup Coverage",
+                    category="technical_ai",
+                    status="warn",
+                    score=2,
+                    max_score=5,
+                    description="Pages implement Article, FAQ, HowTo, and Organization schema markup where relevant.",
+                    recommendation="Only 40% of eligible pages have schema markup. Add FAQPage schema to Q&A content and Article schema to blog posts.",
+                ),
+                CheckResult(
+                    id="ta_semantic_html",
+                    name="Semantic HTML Usage",
+                    category="technical_ai",
+                    status="pass",
+                    score=3,
+                    max_score=3,
+                    description="Pages use semantic HTML elements (article, section, nav, aside) to convey content structure.",
+                ),
+                CheckResult(
+                    id="ta_page_speed",
+                    name="Page Load Performance",
+                    category="technical_ai",
+                    status="fail",
+                    score=0,
+                    max_score=2,
+                    description="Mobile page load time is under 3 seconds with passing Core Web Vitals.",
+                    recommendation="Average mobile load time is 4.8 seconds. Optimize images and reduce JavaScript bundle size.",
+                ),
+            ],
+        ),
+        CategoryScore(
+            name="Topical Authority",
+            key="topical_authority",
+            score=9,
+            max_score=15,
+            description="Depth and breadth of content coverage establishing domain expertise.",
+            checks=[
+                CheckResult(
+                    id="tp_topic_clusters",
+                    name="Topic Cluster Coverage",
+                    category="topical_authority",
+                    status="warn",
+                    score=2,
+                    max_score=5,
+                    description="Content is organized into pillar pages and supporting cluster content covering core topics comprehensively.",
+                    recommendation="Identified 3 core topics with only surface-level coverage. Create pillar pages for each and link 5-8 supporting articles.",
+                ),
+                CheckResult(
+                    id="tp_query_coverage",
+                    name="Query Fanout Coverage",
+                    category="topical_authority",
+                    status="pass",
+                    score=5,
+                    max_score=5,
+                    description="Content addresses the full spectrum of user queries around core topics, including variations and follow-up questions.",
+                ),
+                CheckResult(
+                    id="tp_content_freshness",
+                    name="Semantic Freshness",
+                    category="topical_authority",
+                    status="warn",
+                    score=2,
+                    max_score=5,
+                    description="Content is regularly updated to reflect current data, trends, and terminology.",
+                    recommendation="14 pages have not been updated in over 6 months. AI models weigh content freshness as an authority signal.",
+                ),
+            ],
+        ),
+        CategoryScore(
+            name="AI Engine Compatibility",
+            key="ai_engine_compat",
+            score=7,
+            max_score=10,
+            description="Compatibility with specific AI search engines and answer generation systems.",
+            checks=[
+                CheckResult(
+                    id="ae_chatgpt_visibility",
+                    name="ChatGPT Visibility",
+                    category="ai_engine_compat",
+                    status="pass",
+                    score=4,
+                    max_score=4,
+                    description="Brand appears in ChatGPT responses for core industry queries.",
+                ),
+                CheckResult(
+                    id="ae_perplexity_citations",
+                    name="Perplexity Citation Rate",
+                    category="ai_engine_compat",
+                    status="warn",
+                    score=2,
+                    max_score=3,
+                    description="Content is cited by Perplexity AI for relevant queries with proper source attribution.",
+                    recommendation="Brand cited in only 2 of 10 tested Perplexity queries. Improve content extractability by adding clearer section summaries.",
+                ),
+                CheckResult(
+                    id="ae_google_aio",
+                    name="Google AI Overview Inclusion",
+                    category="ai_engine_compat",
+                    status="fail",
+                    score=1,
+                    max_score=3,
+                    description="Content appears in Google AI Overview responses for target queries.",
+                    recommendation="Not appearing in Google AI Overviews for 8 of 10 target queries. Focus on structured content that matches the Q&A format of AI Overviews.",
+                ),
+            ],
+        ),
+    ]
+
+    overall_score = sum(c.score for c in categories)
+    overall_max = sum(c.max_score for c in categories)
+
+    summary = (
+        "This site has solid content structure and good AI crawler access, "
+        "but lacks author authority signals and FAQ sections that AI models "
+        "rely on for citations. Entity coverage needs improvement — no Wikipedia "
+        "or Wikidata presence was detected. Prioritize adding structured FAQ "
+        "content and author bylines to boost visibility in AI-generated answers."
+    )
+
+    site_map = SiteMap(
+        nodes=[
+            SiteMapNode(id="home", label="Homepage", score=18, max_score=20),
+            SiteMapNode(id="blog", label="Blog", score=12, max_score=20),
+            SiteMapNode(id="about", label="About", score=8, max_score=20),
+            SiteMapNode(id="products", label="Products", score=15, max_score=20),
+            SiteMapNode(id="docs", label="Documentation", score=16, max_score=20),
+            SiteMapNode(id="faq", label="FAQ", score=4, max_score=20),
+            SiteMapNode(id="contact", label="Contact", score=10, max_score=20),
+            SiteMapNode(id="pricing", label="Pricing", score=13, max_score=20),
+        ],
+        links=[
+            SiteMapLink(source="home", target="blog"),
+            SiteMapLink(source="home", target="about"),
+            SiteMapLink(source="home", target="products"),
+            SiteMapLink(source="home", target="docs"),
+            SiteMapLink(source="home", target="faq"),
+            SiteMapLink(source="home", target="contact"),
+            SiteMapLink(source="home", target="pricing"),
+            SiteMapLink(source="blog", target="docs"),
+            SiteMapLink(source="products", target="pricing"),
+            SiteMapLink(source="products", target="docs"),
+            SiteMapLink(source="docs", target="faq"),
+        ],
+    )
+
+    return AuditResponse(
+        metadata=AuditMetadata(
+            url=str(url),
+            audited_at=datetime.now(timezone.utc).isoformat(),
+            duration_ms=3420,
+            engine="geobot-v0.1.0",
+        ),
+        overall_score=overall_score,
+        overall_max_score=overall_max,
+        overall_grade=_grade(overall_score),
+        summary=summary,
+        site_map=site_map,
+        categories=categories,
+    )
