@@ -23,6 +23,11 @@ def test_audit_endpoint():
     assert len(data["categories"]) == 6
     assert data["metadata"]["url"] == "https://example.com/"
     assert data["overall_max_score"] == 100
+    assert "summary" in data
+    assert len(data["summary"]) > 0
+    assert "site_map" in data
+    assert len(data["site_map"]["nodes"]) > 0
+    assert len(data["site_map"]["links"]) > 0
 
 
 def test_audit_invalid_url():

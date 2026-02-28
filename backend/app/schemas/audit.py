@@ -32,9 +32,28 @@ class AuditMetadata(BaseModel):
     engine: str
 
 
+class SiteMapNode(BaseModel):
+    id: str
+    label: str
+    score: int
+    max_score: int
+
+
+class SiteMapLink(BaseModel):
+    source: str
+    target: str
+
+
+class SiteMap(BaseModel):
+    nodes: list[SiteMapNode]
+    links: list[SiteMapLink]
+
+
 class AuditResponse(BaseModel):
     metadata: AuditMetadata
     overall_score: int
     overall_max_score: int
     overall_grade: str
+    summary: str
+    site_map: SiteMap
     categories: list[CategoryScore]

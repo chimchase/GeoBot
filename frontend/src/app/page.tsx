@@ -14,10 +14,13 @@ export default function Home() {
     <div className="flex min-h-screen flex-col items-center justify-center px-4">
       <main className="flex flex-col items-center gap-8 text-center">
         <div className="flex flex-col items-center gap-3">
-          <h1 className="text-5xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500 text-2xl font-bold text-slate-950">
+            G
+          </div>
+          <h1 className="text-5xl font-bold tracking-tight text-white">
             GeoBot
           </h1>
-          <p className="max-w-md text-lg text-zinc-600 dark:text-zinc-400">
+          <p className="max-w-md text-lg text-slate-400">
             Audit your website for AI search visibility. See how you appear in
             ChatGPT, Perplexity, and Google AI Overviews.
           </p>

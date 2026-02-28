@@ -10,8 +10,11 @@ interface CategoryCardProps {
 }
 
 export function CategoryCard({ category }: CategoryCardProps) {
+  const pct = Math.round((category.score / category.max_score) * 100);
+  const glowClass = pct >= 80 ? "shadow-emerald-500/10 shadow-lg" : "";
+
   return (
-    <Card>
+    <Card className={glowClass}>
       <div className="mb-4 flex items-center gap-4">
         <div className="relative">
           <ScoreRing
@@ -22,10 +25,10 @@ export function CategoryCard({ category }: CategoryCardProps) {
           />
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+          <h3 className="text-lg font-semibold text-white">
             {category.name}
           </h3>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="text-sm text-slate-500">
             {category.description}
           </p>
         </div>

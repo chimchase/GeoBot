@@ -27,10 +27,29 @@ export interface AuditMetadata {
   engine: string;
 }
 
+export interface SiteMapNode {
+  id: string;
+  label: string;
+  score: number;
+  max_score: number;
+}
+
+export interface SiteMapLink {
+  source: string;
+  target: string;
+}
+
+export interface SiteMap {
+  nodes: SiteMapNode[];
+  links: SiteMapLink[];
+}
+
 export interface AuditResponse {
   metadata: AuditMetadata;
   overall_score: number;
   overall_max_score: number;
   overall_grade: string;
+  summary: string;
+  site_map: SiteMap;
   categories: CategoryScore[];
 }

@@ -38,7 +38,7 @@ export function ScoreRing({
           fill="none"
           stroke="currentColor"
           strokeWidth={strokeWidth}
-          className="text-zinc-200 dark:text-zinc-800"
+          className="text-slate-800"
         />
         <circle
           cx={size / 2}
@@ -57,13 +57,13 @@ export function ScoreRing({
         className="absolute flex flex-col items-center justify-center"
         style={{ width: size, height: size }}
       >
-        <span className="text-2xl font-bold" style={{ color }}>
+        <span className="text-2xl font-bold text-white" style={{ color }}>
           {score}
         </span>
-        <span className="text-xs text-zinc-500">/ {maxScore}</span>
+        <span className="text-xs text-slate-500">/ {maxScore}</span>
       </div>
       {label && (
-        <span className="mt-1 text-sm font-medium text-zinc-600 dark:text-zinc-400">
+        <span className="mt-1 text-sm font-medium text-slate-400">
           {label}
         </span>
       )}

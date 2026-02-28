@@ -1,56 +1,57 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
-import { ScoreRing } from "@/components/ui/score-ring";
 import type { AuditResponse } from "@/lib/types";
 
 interface ScoreOverviewProps {
   audit: AuditResponse;
 }
 
-function gradeColor(grade: string): string {
+function gradeConfig(grade: string): { bg: string; text: string; glow: string } {
   switch (grade) {
     case "A":
-      return "text-green-500";
+      return { bg: "from-emerald-500 to-green-400", text: "text-emerald-950", glow: "shadow-emerald-500/30" };
     case "B":
-      return "text-lime-500";
+      return { bg: "from-lime-500 to-green-400", text: "text-lime-950", glow: "shadow-lime-500/30" };
     case "C":
-      return "text-yellow-500";
+      return { bg: "from-amber-500 to-yellow-400", text: "text-amber-950", glow: "shadow-amber-500/30" };
     case "D":
-      return "text-orange-500";
+      return { bg: "from-orange-500 to-amber-400", text: "text-orange-950", glow: "shadow-orange-500/30" };
     default:
-      return "text-red-500";
+      return { bg: "from-red-600 to-red-400", text: "text-red-950", glow: "shadow-red-500/30" };
   }
 }
 
 export function ScoreOverview({ audit }: ScoreOverviewProps) {
+  const config = gradeConfig(audit.overall_grade);
+  const pct = Math.round((audit.overall_score / audit.overall_max_score) * 100);
+
   return (
-    <Card className="flex flex-col items-center gap-4 sm:flex-row sm:gap-8">
-      <div className="relative">
-        <ScoreRing
-          score={audit.overall_score}
-          maxScore={audit.overall_max_score}
-          size={140}
-          strokeWidth={12}
-        />
-      </div>
-      <div className="flex flex-col items-center gap-1 sm:items-start">
-        <div className="flex items-baseline gap-2">
-          <span className="text-3xl font-bold text-zinc-900 dark:text-zinc-100">
+    <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${config.bg} p-8 shadow-lg ${config.glow}`}>
+      <div className="relative z-10 flex flex-col items-center gap-2 sm:flex-row sm:justify-between">
+        <div>
+          <p className={`text-sm font-semibold uppercase tracking-widest ${config.text} opacity-70`}>
             GEO Score
-          </span>
-          <span className={`text-3xl font-bold ${gradeColor(audit.overall_grade)}`}>
-            {audit.overall_grade}
-          </span>
+          </p>
+          <div className="flex items-baseline gap-3">
+            <span className={`text-7xl font-black ${config.text}`}>
+              {pct}%
+            </span>
+            <span className={`text-4xl font-bold ${config.text} opacity-60`}>
+              {audit.overall_grade}
+            </span>
+          </div>
+          <p className={`mt-1 text-sm font-medium ${config.text} opacity-60`}>
+            {audit.overall_score} / {audit.overall_max_score} points
+          </p>
         </div>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          {audit.metadata.url}
-        </p>
-        <p className="text-xs text-zinc-400 dark:text-zinc-500">
-          Audited {new Date(audit.metadata.audited_at).toLocaleString()} &middot;{" "}
-          {audit.metadata.duration_ms}ms
-        </p>
+        <div className={`text-right ${config.text}`}>
+          <p className="text-sm opacity-60">{audit.metadata.url}</p>
+          <p className="text-xs opacity-40">
+            {new Date(audit.metadata.audited_at).toLocaleString()} &middot; {audit.metadata.duration_ms}ms
+          </p>
+        </div>
       </div>
-    </Card>
+      <div className={`absolute -right-8 -top-8 h-40 w-40 rounded-full ${config.text} opacity-10 blur-2xl`} />
+    </div>
   );
 }

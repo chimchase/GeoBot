@@ -5,6 +5,9 @@ from app.schemas.audit import (
     AuditResponse,
     CategoryScore,
     CheckResult,
+    SiteMap,
+    SiteMapLink,
+    SiteMapNode,
 )
 
 
@@ -320,6 +323,40 @@ def generate_mock_audit(url: str) -> AuditResponse:
     overall_score = sum(c.score for c in categories)
     overall_max = sum(c.max_score for c in categories)
 
+    summary = (
+        "This site has solid content structure and good AI crawler access, "
+        "but lacks author authority signals and FAQ sections that AI models "
+        "rely on for citations. Entity coverage needs improvement — no Wikipedia "
+        "or Wikidata presence was detected. Prioritize adding structured FAQ "
+        "content and author bylines to boost visibility in AI-generated answers."
+    )
+
+    site_map = SiteMap(
+        nodes=[
+            SiteMapNode(id="home", label="Homepage", score=18, max_score=20),
+            SiteMapNode(id="blog", label="Blog", score=12, max_score=20),
+            SiteMapNode(id="about", label="About", score=8, max_score=20),
+            SiteMapNode(id="products", label="Products", score=15, max_score=20),
+            SiteMapNode(id="docs", label="Documentation", score=16, max_score=20),
+            SiteMapNode(id="faq", label="FAQ", score=4, max_score=20),
+            SiteMapNode(id="contact", label="Contact", score=10, max_score=20),
+            SiteMapNode(id="pricing", label="Pricing", score=13, max_score=20),
+        ],
+        links=[
+            SiteMapLink(source="home", target="blog"),
+            SiteMapLink(source="home", target="about"),
+            SiteMapLink(source="home", target="products"),
+            SiteMapLink(source="home", target="docs"),
+            SiteMapLink(source="home", target="faq"),
+            SiteMapLink(source="home", target="contact"),
+            SiteMapLink(source="home", target="pricing"),
+            SiteMapLink(source="blog", target="docs"),
+            SiteMapLink(source="products", target="pricing"),
+            SiteMapLink(source="products", target="docs"),
+            SiteMapLink(source="docs", target="faq"),
+        ],
+    )
+
     return AuditResponse(
         metadata=AuditMetadata(
             url=str(url),
@@ -330,5 +367,7 @@ def generate_mock_audit(url: str) -> AuditResponse:
         overall_score=overall_score,
         overall_max_score=overall_max,
         overall_grade=_grade(overall_score),
+        summary=summary,
+        site_map=site_map,
         categories=categories,
     )
