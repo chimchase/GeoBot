@@ -7,7 +7,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { AuditForm } from "@/components/audit/audit-form";
 import { ScoreOverview } from "@/components/audit/score-overview";
 import { BotPerspective } from "@/components/audit/bot-perspective";
-import { CategoryCard } from "@/components/audit/category-card";
+import { CategoryTabs } from "@/components/audit/category-tabs";
 import { SpiderWeb } from "@/components/audit/spider-web";
 import { MetricCards } from "@/components/audit/metric-cards";
 
@@ -57,11 +57,7 @@ function AuditContent() {
               <BotPerspective summary={data.summary} />
             </div>
           </div>
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {data.categories.map((category) => (
-              <CategoryCard key={category.key} category={category} />
-            ))}
-          </div>
+          <CategoryTabs categories={data.categories} />
           <div id="sitemap">
             <SpiderWeb siteMap={data.site_map} />
           </div>
